@@ -17,29 +17,26 @@ package com.sm.addtwolistnum;
  */
 
 class Solution {
+    // simplify your code
     public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
         ListNode curL1 = l1, curL2 = l2;
         boolean hasAddIn; // 有进位
         int va1 = curL1.val;
         int va2 = curL2.val;
         int sum = va1 + va2;
-        int rest = sum - 10;
-        hasAddIn = rest >= 0;
 
-        ListNode result = new ListNode(hasAddIn?rest:sum);
+        ListNode result = new ListNode(sum %10);
         ListNode curResult = result;
 
         while (curL1.next != null) {
             if(curL2.next == null) {
                 //System.out.format("curL2.next == null\n");
-                copyList(curL1.next, curResult, hasAddIn);
+                copyList(curL1.next, curResult, sum);
                 return result;
             } else {
-                sum = curL1.next.val + curL2.next.val + (hasAddIn?1:0);
-                rest = sum - 10;
-                hasAddIn = rest >=0;
+                sum = curL1.next.val + curL2.next.val + sum/10;
                 //System.out.format("sum: %s, rest: %s\n", sum, rest);
-                curResult.next = new ListNode(hasAddIn?rest:sum);
+                curResult.next = new ListNode(sum%10);
                 curResult = curResult.next;
                 curL1 = curL1.next;
                 curL2 = curL2.next;
@@ -47,9 +44,9 @@ class Solution {
         }
         if(curL2.next != null) {
             //System.out.format("curL1.next == null\n");
-            copyList(curL2.next, curResult, hasAddIn);
+            copyList(curL2.next, curResult, sum);
         } else {
-            if (hasAddIn) {
+            if (sum/10 == 1) {
                 curResult.next = new ListNode(1);
             }
         }
@@ -57,25 +54,21 @@ class Solution {
         return result;
     }
 
-    private void copyList(ListNode origNode, ListNode destNode, boolean origAddIn) {
+    private void copyList(ListNode origNode, ListNode destNode, int lastSum) {
         ListNode curOrigNode = origNode;
         ListNode curDestNode = destNode;
-        int sum = curOrigNode.val + (origAddIn ? 1: 0);
-        int rest = sum - 10;
-        boolean hasAdd = rest >= 0;
+        int sum = curOrigNode.val + lastSum/10;
         //System.out.format("copyList sum: %s, rest: %s, result: %s\n", sum, rest, hasAdd?rest:sum);
-        curDestNode.next = new ListNode(hasAdd?rest:sum);
+        curDestNode.next = new ListNode(sum%10);
         curDestNode = curDestNode.next;
         while (curOrigNode.next != null) {
             //System.out.format("copyList origin next not null\n");
             curOrigNode = curOrigNode.next;
-            sum = curOrigNode.val + (hasAdd ? 1: 0);
-            rest = sum - 10;
-            hasAdd = rest >= 0;
-            curDestNode.next = new ListNode(hasAdd?rest:sum);
+            sum = curOrigNode.val + (sum/10);
+            curDestNode.next = new ListNode(sum%10);
             curDestNode = curDestNode.next;
         }
-        if(hasAdd) {
+        if(sum/10 == 1) {
             curDestNode.next = new ListNode(1);
         }
     }
