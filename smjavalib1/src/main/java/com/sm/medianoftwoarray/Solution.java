@@ -26,115 +26,39 @@ import java.util.ArrayList;
 
 class Solution {
 
-    private double compareToFind(int[] num1, int[] num2, int index1, int index2, int length1, int length2, int median) {
-        System.out.format("compareToFind index1: %d, index2: %d\n", index1, index2);
-        int rest = (length1 + length2) % 2;
-        int count = index1 + index2;
-        while (true) {
-            if(num1[index1] > num2[index2]) {
-                index2++;
-            } else {
-                index1++;
-            }
-            System.out.format("after increase index1: %d, index2: %d\n", index1, index2);
-            if(index1 >= length1) {
-                System.out.format("index1 larger than length1 , index1: %d , index2: %d , median: %d\n", index1, index2, median);
-                //return rest == 1?num2[median - index1 + index2]:(num2[median - index1 + index2] + num2[median - index1 + index2 + 1])/2;
-                if(index2 != 0) {
-                    index1--;
-                    index2 = index2 + median- index1;
-                }
-                break;
-            }
-            if(index2 >= length2) {
-                System.out.format("index2 larger than length2 , index1: %d , index2: %d , median: %d\n", index1, index2, median);
-                //return rest == 1?num1[median - index2 + index1]:(num1[median - index2 + index1] + num1[median - index2 + index1 + 1])/2;
-                if(index1 != 0) {
-                    index2--;
-                    index1 = index1 + median - index2;
-                }
-                break;
-            }
-
-            if(++count == median) {
-                System.out.format("++count == median ,count: %d, median: %d\n", count, median);
-                break;
-            }
-        }
-        System.out.format("index1: %d , index2: %d\n", index1, index2);
-        int result1, result2;
-        if(index1 == 0 && index2 == length2) {
-            index1 = median - index2;
-            result1 = num1[index1++];
-        } else if(index2 == 0 && index1 == length1) {
-            index2 = median - index1;
-            result1 = num2[index2++];
-        } else if(num1[index1] > num2[index2]) {
-            result1 = num2[index2];
-            index2++;
-        } else {
-            result1 = num1[index1];
-            index1++;
-        }
-        if(index1 >= length1) {
-            result2 = num2[index2];
-            System.out.format("s1 index1: %d, result2: %d\n", index2, result2);
-            //return ((double)result1 + (double)num2[index2])/2;
-        } else if(index2 >= length2) {
-            result2 = num1[index1];
-            System.out.format("s2 index1: %d, result2: %d\n", index1, result2);
-            //return ((double)result1 + (double)num1[index1])/2;
-        } else if(num1[index1] > num2[index2]) {
-            result2 = num2[index2];
-            System.out.format("s3 index2: %d, result2: %d\n", index2, result2);
-            //return ((double)result1 + (double)num2[index2])/2;
-        } else{
-            result2 = num1[index1];
-            System.out.format("s4 index1: %d, result2: %d\n", index1, result2);
-            //return ((double)result1 + (double)num1[index1])/2;
-        }
-        System.out.format("index1: %d , index2: %d , result1: %d , result2: %d\n", index1, index2, result1, result2);
-        if(rest == 1) {
-            return result2;
-        } else {
-            return ((double) result1 + (double) result2)/2;
+    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+        int m = nums1.length, n = nums2.length;
+        int k = (m + n) / 2;
+        if((m+n)%2==0){
+            return (findKth(nums1,nums2,0,0,m,n,k)+findKth(nums1,nums2,0,0,m,n,k+1))/2;
+        }   else {
+            return findKth(nums1,nums2,0,0,m,n,k+1);
         }
     }
 
-    public double findMedianSortedArrays(int[] num1, int[] num2) {
-        int length1 = num1.length, length2 = num2.length;
-        int median = (length1 + length2)/2 - 1;
-        int index1 = 0, index2 = 0, indexN1, indexN2;
-        while (true) {
-            if(num1[index1] > num2[index2]) {
-                System.out.format("s1 num1[index1]: %d, num2[index2]: %d \n", num1[index1] , num2[index2]);
-                indexN1 = index1;
-                indexN2 = (index2<<1) + 1;
-            } else {
-                System.out.format("s2 num1[index1]: %d, num2[index2]: %d \n", num1[index1] , num2[index2]);
-                indexN1 = (index1<<1) + 1;
-                indexN2 = index2;
-            }
-            if(indexN1 >= length1 || indexN2 >= length2) {
-                System.out.format("out of length, indexN1: %d, indexN2: %d\n", indexN1, indexN2);
-                return compareToFind(num1, num2, index1, index2, length1, length2, median);
-            }
-            if(indexN1 + indexN2 >= median) {
-                System.out.format("after median, indexN1: %d, indexN2: %d, median: %d\n", indexN1, indexN2, median);
-                return compareToFind(num1, num2, index1, index2, length1, length2, median);
-            }
-            // 不用if-else将多了两次赋值
-            System.out.format("findMedian, index: %d, index2: %d, indexN1: %d, indexN2: %d\n", index1, index2, indexN1, indexN2);
-            index1 = indexN1;
-            index2 = indexN2;
+    private double findKth(int[] arr1, int[] arr2, int start1, int start2, int len1, int len2, int k){
+        if(len1>len2){
+            return findKth(arr2,arr1,start2,start1,len2,len1,k);
+        }
+        if(len1==0){
+            return arr2[start2 + k - 1];
+        }
+        if(k==1){
+            return Math.min(arr1[start1],arr2[start2]);
+        }
+        int p1 = Math.min(k/2,len1) ;
+        int p2 = k - p1;
+        if(arr1[start1 + p1-1]<arr2[start2 + p2-1]){
+            return findKth(arr1,arr2,start1 + p1,start2,len1-p1,len2,k-p1);
+        } else if(arr1[start1 + p1-1]>arr2[start2 + p2-1]){
+            return findKth(arr1,arr2,start1,start2 + p2,len1,len2-p2,k-p2);
+        } else {
+            return arr1[start1 + p1-1];
         }
     }
 
     public static void main(String[] args) {
         // maybe the memories are better..
-        int[] num1 = new int[] {100,101,102,103,104,105};
-        int[] num2 = new int[] {1,2};
-
         ArrayList<Object> num1Objs = new ArrayList<>();
         ArrayList<Object> num2Objs = new ArrayList<>();
 
@@ -155,6 +79,24 @@ class Solution {
 
         num1Objs.add(new int[]{100,101,102,103,104,105});
         num2Objs.add(new int[]{1,2,3,4});
+
+        num1Objs.add(new int[]{});
+        num2Objs.add(new int[]{1,2,3,4});
+
+        num1Objs.add(new int[]{});
+        num2Objs.add(new int[]{1});
+
+        num1Objs.add(new int[]{1});
+        num2Objs.add(new int[]{1});
+
+        num1Objs.add(new int[]{1,2,3,4});
+        num2Objs.add(new int[]{1,3,4,5});
+
+        num1Objs.add(new int[]{6,6});
+        num2Objs.add(new int[]{1,1});
+
+        num1Objs.add(new int[]{1,1});
+        num2Objs.add(new int[]{6,6});
 
         Solution solution = new Solution();
         for(int i = 0; i < num1Objs.size() ;i++) {
